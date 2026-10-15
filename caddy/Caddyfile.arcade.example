@@ -1,0 +1,49 @@
+# One-domain routing for the Atlas Arcade hub (WorkAdventure + path routes).
+# Copy into your Caddyfile, set your domain and BIND_IP, reload Caddy.
+#
+# Gotchas we hit (documented so you don't have to):
+#   - /map-storage must be STRIPPED (handle_path); the app serves at root
+#   - /upload (exact) goes to MAP-STORAGE (map upload API)
+#   - /upload-file* goes to the UPLOADER (chat file uploads) — do NOT strip
+#   - WebSockets need no special config in Caddy v2
+
+arcade.example.com {
+	import atlas_nobak
+
+	handle /ws/* {
+		reverse_proxy 127.0.0.1:8101
+	}
+	handle_path /api/* {
+		reverse_proxy 127.0.0.1:8102
+	}
+	handle_path /map-storage/* {
+		reverse_proxy 127.0.0.1:8103
+	}
+	handle /upload {
+		reverse_proxy 127.0.0.1:8103
+	}
+	handle /upload-file* {
+		reverse_proxy 127.0.0.1:8104
+	}
+	handle /icon/* {
+		uri strip_prefix /icon
+		reverse_proxy 127.0.0.1:8105
+	}
+	handle /lettericons/* {
+		uri strip_prefix /lettericons
+		reverse_proxy 127.0.0.1:8105
+	}
+	handle {
+		reverse_proxy 127.0.0.1:8100
+	}
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "no-referrer"
+	}
+	log {
+		output file /var/log/caddy/arcade-access.log
+		format json
+	}
+}

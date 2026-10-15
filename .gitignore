@@ -1,0 +1,9 @@
+# secrets & local state
+.env
+.env.*
+!.env.template.example
+map-storage-token.txt
+*token*.txt
+node_modules/
+dist/
+.DS_Store

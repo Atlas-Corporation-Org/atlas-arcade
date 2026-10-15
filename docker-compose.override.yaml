@@ -1,0 +1,23 @@
+# Example override — install.sh generates this with real values.
+# Ports bind to a private interface by default; expose only via your reverse proxy.
+services:
+  play:
+    ports: ["127.0.0.1:8100:3000", "127.0.0.1:8101:3001"]
+    mem_limit: 700m
+  back:
+    ports: ["127.0.0.1:8102:8080"]
+    mem_limit: 500m
+  map-storage:
+    ports: ["127.0.0.1:8103:3000"]
+    mem_limit: 400m
+    environment:
+      - AUTHENTICATION_STRATEGY=Bearer
+      - AUTHENTICATION_TOKEN=CHANGE_ME
+  uploader:
+    ports: ["127.0.0.1:8104:8080"]
+    mem_limit: 200m
+  icon:
+    ports: ["127.0.0.1:8105:8080"]
+    mem_limit: 200m
+  redis:
+    mem_limit: 128m
