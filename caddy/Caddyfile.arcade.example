@@ -1,11 +1,16 @@
-# One-domain routing for the Atlas Arcade hub (WorkAdventure + path routes).
-# Copy into your Caddyfile, set your domain and BIND_IP, reload Caddy.
+# One-domain routing for the Atlas Arcade hub (WorkAdventure + path routes),
+# plus the launcher subdomain for the gethomepage tile dashboard.
+# Copy into your Caddyfile, set your domains and BIND_IP, reload Caddy.
 #
 # Gotchas we hit (documented so you don't have to):
 #   - /map-storage must be STRIPPED (handle_path); the app serves at root
 #   - /upload (exact) goes to MAP-STORAGE (map upload API)
 #   - /upload-file* goes to the UPLOADER (chat file uploads) — do NOT strip
 #   - WebSockets need no special config in Caddy v2
+#   - The world and the launcher are SEPARATE sites: both are Next.js apps
+#     serving /_next/*, so they cannot share one hostname. The arcade
+#     catch-all (including / and /_next/*) goes straight into the world
+#     (play client START_ROOM_URL); homepage gets its own subdomain.
 
 arcade.example.com {
 	import atlas_nobak
@@ -33,12 +38,8 @@ arcade.example.com {
 		uri strip_prefix /lettericons
 		reverse_proxy 127.0.0.1:8105
 	}
-	# Dashboard landing (gethomepage) on exact root + its Next.js assets.
-	# Without the asset paths the page renders unstyled (they fall through to the world).
-	@homepage path / /_next/* /homepage.ico /favicon-16x16.png /favicon-32x32.png /apple-touch-icon.png /safari-pinned-tab.svg /site.webmanifest
-	handle @homepage {
-		reverse_proxy 127.0.0.1:8106
-	}
+	# Everything else — including / and /_next/* — is the world (play client,
+	# which opens START_ROOM_URL, so the root lands straight in-world).
 	handle {
 		reverse_proxy 127.0.0.1:8100
 	}
@@ -52,4 +53,11 @@ arcade.example.com {
 		output file /var/log/caddy/arcade-access.log
 		format json
 	}
+}
+
+# gethomepage tile launcher on its own subdomain (Next.js /_next conflict
+# with the play client — see gotcha at the top).
+launcher.example.com {
+	import atlas_nobak
+	reverse_proxy 127.0.0.1:8106
 }

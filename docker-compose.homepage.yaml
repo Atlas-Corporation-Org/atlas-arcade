@@ -1,4 +1,5 @@
-# gethomepage launcher — the landing page at https://arcade.atlascorporation.org/
+# gethomepage launcher — tile dashboard at https://launcher.atlascorporation.org/
+# (the arcade root itself goes straight into the WorkAdventure world).
 # Lives on atlas-02 in /opt/atlas/games/docker-compose.yml (this file is the snippet we added).
 # Config (settings.yaml, services.yaml, widgets.yaml) is versioned in this repo under homepage/config/
 # and bind-mounted on the host at /opt/atlas/games/homepage/config.
@@ -6,6 +7,8 @@
 # NOTE: homepage v2.x statically generates the index. After any config change run:
 #   curl -s http://<host>:8106/api/revalidate   ->  {"revalidated":true}
 # otherwise it keeps serving the built-in skeleton demo page.
+# NOTE: HOMEPAGE_ALLOWED_HOSTS must list BOTH hosts — homepage 400s
+# ({"error":"Host validation failed"}) on any Host not in this list.
 
 services:
   homepage:
@@ -17,5 +20,5 @@ services:
     volumes:
       - /opt/atlas/games/homepage/config:/app/config
     environment:
-      - HOMEPAGE_ALLOWED_HOSTS=arcade.atlascorporation.org
+      - HOMEPAGE_ALLOWED_HOSTS=arcade.atlascorporation.org,launcher.atlascorporation.org
     restart: unless-stopped

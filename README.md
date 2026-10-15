@@ -27,7 +27,7 @@ Built on [WorkAdventure](https://github.com/workadventure/workadventure) (AGPL-3
 
 - **Walkable world** — avatars (Wokas), proximity groups, chat, conference areas, screens you can point at any website or game
 - **Game browsing inside the hub** — portals/screens to self-hosted games (this repo documents the exact OpenFront + Luanti + Mumble setup we run)
-- **One domain** — everything routed by path (`/`, `/ws`, `/api`, `/map-storage`, `/icon`); no subdomain sprawl
+- **One domain for the world** — everything routed by path (`/`, `/ws`, `/api`, `/map-storage`, `/icon`); the only extra host is the optional `launcher.` subdomain for the tile dashboard
 - **Self-hosted only** — no accounts at big tech, no per-seat pricing, runs on a single 2–4 GB VPS
 
 ## Repo layout
@@ -146,25 +146,33 @@ WorkAdventure supports in-world proximity voice through a [LiveKit](https://live
 - Point `LIVEKIT_HOST` at an **https** URL behind your reverse proxy (e.g. `https://livekit.example.com`) — browsers will only open signaling/WebRTC from secure contexts, not a bare `http://host:7880`
 - The API secret is a credential: keep it in `.env` (gitignored) and **never commit it**
 
-## Landing page: gethomepage
+## Landing page: straight into the world; launcher on its own subdomain
 
-The root of `arcade.atlascorporation.org` no longer drops visitors straight into the world — it
-serves a [gethomepage](https://gethomepage.dev) launcher with tiles for the world, the browser
-games, the clients and internal projects. The world itself stays exactly where it was:
-**`/@/dist/office`** (the Caddy catch-all still routes `/@/*` to the `play` container).
+**The root of `arcade.atlascorporation.org` drops visitors straight into the world.** The `play`
+client's `START_ROOM_URL` points at the office map (`.../map-storage/dist/office.tmj`), so hitting
+`/` lands you in-world immediately — no dashboard in between. The Authentik "Game Room" tile points
+at the arcade root for the same reason.
+
+**The [gethomepage](https://gethomepage.dev) launcher moved to [`launcher.atlascorporation.org`](https://launcher.atlascorporation.org)** —
+the tile overview for the world, the browser games, the clients and internal projects. It got its
+own subdomain because both the WorkAdventure play client and homepage are Next.js apps serving
+`/_next/*`: on one hostname the asset routes collide, so they can't be split by path cleanly.
 
 - **Service**: `homepage` (`ghcr.io/gethomepage/homepage:latest`), container `atlas-arcade-homepage`,
   256 MB memory cap — see `docker-compose.homepage.yaml` for the snippet (deployed inside
   `/opt/atlas/games/docker-compose.yml` on atlas-02)
 - **Port**: bound to the tailnet IP only, `100.86.84.57:8106 -> 3000`; only Caddy faces the internet
+- **Caddy**: the arcade site block has **no** homepage route anymore — the catch-all (incl. `/` and
+  `/_next/*`) goes to `play`. The launcher is a separate one-line site block:
+  see [`caddy/Caddyfile.arcade.example`](caddy/Caddyfile.arcade.example)
 - **Config location (host)**: `/opt/atlas/games/homepage/config` (bind-mounted to `/app/config`).
   The canonical copy is versioned in this repo under `homepage/config/`
   (`settings.yaml`, `services.yaml`, `widgets.yaml`) — copy it over and revalidate after edits
-- **Caddy exact-root route**: in the arcade site block, before the final catch-all:
-  `handle / { reverse_proxy 100.86.84.57:8106 }`, plus env
-  `HOMEPAGE_ALLOWED_HOSTS=arcade.atlascorporation.org` on the container
+- **Gotcha (400 Host validation failed)**: homepage rejects unknown Host headers. The container env
+  must list **both** hosts: `HOMEPAGE_ALLOWED_HOSTS=arcade.atlascorporation.org,launcher.atlascorporation.org`.
+  Adding the launcher subdomain without updating this env returns `400 {"error":"Host validation failed"}`
 - **Gotcha**: homepage v2.x statically generates the index. After any config change run
-  `curl -s https://arcade.atlascorporation.org/api/revalidate` (→ `{"revalidated":true}`), or it
+  `curl -s https://launcher.atlascorporation.org/api/revalidate` (→ `{"revalidated":true}`), or it
   keeps serving the built-in skeleton demo page
 
 Design: `deliverables/DESIGN-LAUNCHER.md`.
