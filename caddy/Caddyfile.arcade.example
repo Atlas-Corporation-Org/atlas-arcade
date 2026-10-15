@@ -33,6 +33,12 @@ arcade.example.com {
 		uri strip_prefix /lettericons
 		reverse_proxy 127.0.0.1:8105
 	}
+	# Dashboard landing (gethomepage) on exact root + its Next.js assets.
+	# Without the asset paths the page renders unstyled (they fall through to the world).
+	@homepage path / /_next/* /homepage.ico /favicon-16x16.png /favicon-32x32.png /apple-touch-icon.png /safari-pinned-tab.svg /site.webmanifest
+	handle @homepage {
+		reverse_proxy 127.0.0.1:8106
+	}
 	handle {
 		reverse_proxy 127.0.0.1:8100
 	}
