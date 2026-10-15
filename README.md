@@ -96,10 +96,38 @@ All self-hosted, all OSS, same doctrine: tiny mem-capped containers, binds on th
 
 Add a game to the world: open the map in the WorkAdventure map editor (map-storage UI), drop a **website area** on a screen/portal and point it at the game URL — players open it without leaving the hub.
 
-## Customizing the map
+## The maps
+
+Two maps are live, connected by doors, and versioned here under `maps/` (canonical copies of what is uploaded to map-storage):
+
+- **`maps/office.tmj`** — the original hub: jitsi chill zone + meeting room, silent zone, and portals/screens for OpenFront, Suroi and the gameroom
+- **`maps/arcade.tmj`** — the arcade annex (`mapName: Arcade`): game zones, a jitsi hangout, no meeting clutter — created by **copying `office.tmj` and editing it**, the method the [map-starter-kit README](https://github.com/workadventure/map-starter-kit) recommends for new maps (never build a `.tmj` from scratch)
+
+**Doors** (object areas with an `exitUrl`, the same pattern as the office's existing `to-conference` door):
+
+| Map | Object | Location (x, y, w×h) | Goes to |
+|-----|--------|----------------------|---------|
+| office | `to-arcade` (+ label `ARCADE ->`) | 32, 512, 32×64 | `/_/global/<domain>/map-storage/dist/arcade.tmj` |
+| arcade | `to-office` | 0, 512, 32×64 | `/_/global/<domain>/map-storage/dist/office.tmj` |
+| arcade | `from-office` (`start: true` — spawn point) | 64, 544, 32×32 | — |
+
+Walk into the door area and you switch maps; `exitUrl` accepts both relative and absolute `/_/global/...` URLs (see the WorkAdventure [entry/exit docs](https://docs.workadventu.re/map-building/entry-exit)).
+
+**Game zones in the arcade** (area objects; `openWebsite` must be an `https://` URL):
+
+| Zone | Opens | Trigger | Prompt |
+|------|-------|---------|--------|
+| `openfront-arcade` | `https://openfront.atlascorporation.org` (fullscreen) | `onaction` — press **Space** | "Speel OpenFront" |
+| `suroi-arcade` | `https://suroi.atlascorporation.org` (fullscreen) | `onaction` — press **Space** | "Speel Suroi" |
+| `jitsiArcade` | Jitsi room `ArcadeRoom` (hangout) | `onaction` — press **Space** | — |
+
+`openWebsiteTrigger: onaction` means the website opens only when the player presses Space inside the zone (`openWebsitePolicy: fullscreen` opens it full-screen); without a trigger the iframe would open automatically on zone entry.
+
+**Customizing / adding a map** — follow the WorkAdventure map docs, always from a copy:
 
 - In-browser editor: `https://your-domain/map-storage/` (login with `MAP_STORAGE_AUTHENTICATION_USER/PASSWORD`)
 - Or edit `.tmj` maps offline in [Tiled](https://www.mapeditor.org/) and re-upload with `scripts/upload-map.sh`
+- New map: copy an existing one (e.g. `office.tmj`), rename it, zero the `start` layer, remove objects you don't want (jitsi/exit zones carry over!), renumber `nextobjectid`, and re-upload
 - Useful areas: `website` (embed a game/dashboard), `exit` (portal between maps), `jitsiMeeting`/`openWebsite` script zones
 
 ## Security notes
