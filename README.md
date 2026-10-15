@@ -118,6 +118,29 @@ WorkAdventure supports in-world proximity voice through a [LiveKit](https://live
 - Point `LIVEKIT_HOST` at an **https** URL behind your reverse proxy (e.g. `https://livekit.example.com`) — browsers will only open signaling/WebRTC from secure contexts, not a bare `http://host:7880`
 - The API secret is a credential: keep it in `.env` (gitignored) and **never commit it**
 
+## Landing page: gethomepage
+
+The root of `arcade.atlascorporation.org` no longer drops visitors straight into the world — it
+serves a [gethomepage](https://gethomepage.dev) launcher with tiles for the world, the browser
+games, the clients and internal projects. The world itself stays exactly where it was:
+**`/@/dist/office`** (the Caddy catch-all still routes `/@/*` to the `play` container).
+
+- **Service**: `homepage` (`ghcr.io/gethomepage/homepage:latest`), container `atlas-arcade-homepage`,
+  256 MB memory cap — see `docker-compose.homepage.yaml` for the snippet (deployed inside
+  `/opt/atlas/games/docker-compose.yml` on atlas-02)
+- **Port**: bound to the tailnet IP only, `100.86.84.57:8106 -> 3000`; only Caddy faces the internet
+- **Config location (host)**: `/opt/atlas/games/homepage/config` (bind-mounted to `/app/config`).
+  The canonical copy is versioned in this repo under `homepage/config/`
+  (`settings.yaml`, `services.yaml`, `widgets.yaml`) — copy it over and revalidate after edits
+- **Caddy exact-root route**: in the arcade site block, before the final catch-all:
+  `handle / { reverse_proxy 100.86.84.57:8106 }`, plus env
+  `HOMEPAGE_ALLOWED_HOSTS=arcade.atlascorporation.org` on the container
+- **Gotcha**: homepage v2.x statically generates the index. After any config change run
+  `curl -s https://arcade.atlascorporation.org/api/revalidate` (→ `{"revalidated":true}`), or it
+  keeps serving the built-in skeleton demo page
+
+Design: `deliverables/DESIGN-LAUNCHER.md`.
+
 ## License
 
 - This repo's scripts/configs: MIT
