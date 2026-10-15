@@ -67,7 +67,7 @@ cd map-starter-kit && cp -r ../maps-dist-example dist   # or npm run buildmap
 ../scripts/upload-map.sh ./dist
 ```
 
-Your world is live at `https://arcade.example.com/@/dist/office`.
+Your world is live at `https://arcade.example.com/_/global/arcade.example.com/map-storage/dist/office.tmj`.
 
 ## One domain, path routing (Caddy)
 
