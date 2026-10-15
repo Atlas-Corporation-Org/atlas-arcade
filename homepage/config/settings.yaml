@@ -1,0 +1,8 @@
+# Atlas Arcade launcher — gethomepage settings (gethomepage.dev docs)
+title: Atlas Arcade
+theme: dark
+color: blue
+headerStyle: clean
+hideVersion: true
+statusStyle: dot
+language: en

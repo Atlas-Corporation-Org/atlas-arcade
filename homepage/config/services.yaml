@@ -1,0 +1,34 @@
+# Atlas Arcade launcher tiles — groups ordered visitor-first (see deliverables/DESIGN-LAUNCHER.md)
+- Wereld:
+    - Enter the world:
+        icon: mdi-briefcase-outline
+        href: /@/dist/office
+        description: WorkAdventure — the Atlas office world (walk around, portals to the games)
+
+- Games (browser):
+    - OpenFront:
+        icon: mdi-castle
+        href: https://openfront.atlascorporation.org
+        description: Real-time strategy conquest, in the browser
+    - Suroi:
+        icon: mdi-target
+        href: https://suroi.atlascorporation.org
+        description: Open-source 2D battle-royale, in the browser
+
+- Games (client):
+    - Luanti + Mineclonia:
+        icon: mdi-cube-outline
+        description: 'Voxel world — connect in Luanti: 100.86.84.57:30000 (tailnet)'
+    - Mumble:
+        icon: mdi-microphone
+        description: 'Voice chat — connect in Mumble: 100.86.84.57:64738 (tailnet)'
+
+- Project:
+    - Map storage:
+        icon: mdi-map-edit
+        href: /map-storage/
+        description: WorkAdventure map editor (auth required)
+    - Vibe Kanban:
+        icon: mdi-kanban
+        href: http://100.93.16.81:5173
+        description: Ops board (tailnet only)
