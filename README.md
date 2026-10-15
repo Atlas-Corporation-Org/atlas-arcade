@@ -91,6 +91,7 @@ All self-hosted, all OSS, same doctrine: tiny mem-capped containers, binds on th
 |------|------|------|-------|
 | **OpenFront** | territorial RTS, whole team in one map, browser | [openfrontio/OpenFrontIO](https://github.com/openfrontio/OpenFrontIO) | see [games/openfront.md](games/openfront.md) |
 | **Luanti + Mineclonia** | open-world sandbox (Minecraft-like), free clients | [luanti-org/luanti](https://github.com/luanti-org/luanti) | see [games/luanti-mumble.md](games/luanti-mumble.md) |
+| **Suroi** | fast-paced top-down battle royale, browser | [HasangerGames/suroi](https://github.com/HasangerGames/suroi) | self-hosted; see [games/suroi.md](games/suroi.md) |
 | **Mumble** | low-latency team voice | [mumble.info](https://www.mumble.info) | see [games/luanti-mumble.md](games/luanti-mumble.md) |
 
 Add a game to the world: open the map in the WorkAdventure map editor (map-storage UI), drop a **website area** on a screen/portal and point it at the game URL — players open it without leaving the hub.
@@ -107,6 +108,15 @@ Add a game to the world: open the map in the WorkAdventure map editor (map-stora
 - Secrets live in `.env` and `map-storage-token.txt` — both gitignored
 - WorkAdventure runs `master` images here; pin `VERSION` to a tagged release for production
 - In-world proximity voice needs LiveKit (not enabled by default); we pair the hub with a plain Mumble server instead
+
+## Proximity voice (LiveKit)
+
+WorkAdventure supports in-world proximity voice through a [LiveKit](https://livekit.io) SFU. Set
+`LIVEKIT_HOST`, `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET` in the WorkAdventure `.env` and restart
+`back`/`play`:
+
+- Point `LIVEKIT_HOST` at an **https** URL behind your reverse proxy (e.g. `https://livekit.example.com`) — browsers will only open signaling/WebRTC from secure contexts, not a bare `http://host:7880`
+- The API secret is a credential: keep it in `.env` (gitignored) and **never commit it**
 
 ## License
 
